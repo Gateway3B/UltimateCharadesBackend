@@ -29,7 +29,8 @@ export class receiveEvents {
         usToggle: this.usToggle,
         claimUser: this.claimUser,
         startTimer: this.startTimer,
-        stopTimer: this.stopTimer
+        stopTimer: this.stopTimer,
+        nextRound: this.nextRound
     }
 
     createSession(message: String) {
@@ -78,7 +79,7 @@ export class receiveEvents {
                 // Set user values.
                 const user: user = this.session.users.get(this.socket.id)!;
                 user.username = username;
-                user.team = team.rand;
+                user.team = crypto.randomInt(2) + 1;
     
                 // Emit new user to user.
                 this.socket.emit(emitEvents.existingUsers, JSON.stringify(Array.from(this.session.users.values())));
@@ -200,7 +201,7 @@ export class receiveEvents {
             clearInterval(this.session.timer);
 
         if(this.session.state === state.wordSelection)
-            this.session.state = team.rand === team.one ? state.teamOnePlay : state.teamTwoPlay;
+            this.session.state = crypto.randomInt(2) + 1 === team.one ? state.teamOnePlay : state.teamTwoPlay;
         else if(this.session.state === state.teamOnePlay || this.session.state === state.teamTwoPlay)
             this.session.state = this.session.state === state.teamOnePlay ? state.teamTwoPlay : state.teamOnePlay;
 
@@ -214,7 +215,7 @@ export class receiveEvents {
                 });
     
                 this.session.currentWord = Array.from(this.session.teamOneWords.values()).reduce((previousWord: word, currentWord: word) => {
-                    if(previousWord.time != null)
+                    if(previousWord.time === null)
                         return previousWord;
                     return currentWord;
                 });
@@ -226,46 +227,59 @@ export class receiveEvents {
                 });
     
                 this.session.currentWord = Array.from(this.session.teamTwoWords.values()).reduce((previousWord: word, currentWord: word) => {
-                    if(previousWord.time != null)
+                    if(previousWord.time === null)
                         return previousWord;
                     return currentWord;
                 });
             }
-    
-            this.session.currentPlayer.roundCount++;
-            this.session.currentWord.time = 0;
-    
-            const nextRoundData = {
-                currentPlayerId: this.session.currentPlayer.userId,
-                currentState: this.session.state,
+
+            if(this.session.currentWord.time === null)
+            {
+                this.session.currentPlayer.roundCount++;
+                this.session.currentWord.time = 0;
+        
+                const nextRoundData = {
+                    currentPlayerId: this.session.currentPlayer.userId,
+                    currentState: this.session.state,
+                }
+        
+                this.socket.server.sockets.sockets.get(this.session.currentPlayer.userId).emit(emitEvents.charadesWord, this.session.currentWord.word);
+                
+                this.socket.emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
+                this.socket.in(this.session.sessionId).emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
+            } else {
+                this.session.state = state.results;
+                const words = {teamOneWords: Array.from(this.session.teamOneWords.values()), teamTwoWords: Array.from(this.session.teamTwoWords.values())};
+                this.socket.emit(emitEvents.results, JSON.stringify(words));
+                this.socket.in(this.session.sessionId).emit(emitEvents.results, JSON.stringify(words));
             }
     
-            this.socket.server.sockets.sockets.get(this.session.currentPlayer.userId).emit(emitEvents.charadesWord, this.session.currentWord.word);
-            
-            this.socket.emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
-            this.socket.in(this.session.sessionId).emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
         }
     }
 
     startTimer() {
-        if(this.session.timer !== undefined)
-            this.session.timer!.refresh();
-        else
-            this.session.timer = setInterval(() => {
-                this.session.currentWord.time!++;
-                this.socket.emit(emitEvents.timerUpdate, this.session.currentWord.time);
-                this.socket.in(this.session.sessionId).emit(emitEvents.timerUpdate, this.session.currentWord.time);
-            }, 1000);
+        if(this.socket.id === this.session.currentPlayer.userId &&
+            (this.session.state === state.teamOnePlay || this.session.state === state.teamTwoPlay)) {
+            
+            this.session.timer = setInterval(() => this.timerUpdate(), 1000);
+            this.socket.emit(emitEvents.timerStart, null);
+        }
+    }
 
-        this.socket.emit(emitEvents.timerStart, null);
+    timerUpdate() {
+        this.session.currentWord.time!++;
+        this.socket.emit(emitEvents.timerUpdate, this.session.currentWord.time);
+        this.socket.in(this.session.sessionId).emit(emitEvents.timerUpdate, this.session.currentWord.time);
     }
 
     stopTimer() {
-        if(this.session.timer !== undefined) {
-            clearInterval(this.session.timer!);
-            this.socket.emit(emitEvents.timerStop, null);
+        if(this.socket.id === this.session.currentPlayer.userId &&
+            (this.session.state === state.teamOnePlay || this.session.state === state.teamTwoPlay)) {
+            if(this.session.timer !== undefined) {
+                clearInterval(this.session.timer!);
+                this.socket.emit(emitEvents.timerStop, null);
+            }
         }
-
     }
 
     claimUser(claimString: string) {
@@ -279,6 +293,9 @@ export class receiveEvents {
         
                 this.socket.join(sessionId);
                 this.socket.join(this.session.teamRoom(user.team!))
+
+                if(this.session.ownerId === user.userId)
+                    this.session.ownerId = this.socket.id;
         
                 // Remove old entry, add new entry.
                 this.session.users.delete(user.userId);
@@ -290,7 +307,7 @@ export class receiveEvents {
                     userId: user.userId,
                     ownerId: this.session.ownerId,
                     users: Array.from(this.session.users.values()),
-                    words: user.team === team.one ? Array.from(this.session.teamOneWords.values()) : Array.from(this.session.teamTwoWords.values()),
+                    words: user.team === team.one ? Array.from(this.session.teamOneWords.values()).map(word => word.word) : Array.from(this.session.teamTwoWords.values()).map(word => word.word),
                     ready: this.session.ready,
                     state: this.session.state,
                     currentPlayerId: this.session.currentPlayer.userId,

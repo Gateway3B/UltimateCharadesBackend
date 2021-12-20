@@ -26,7 +26,6 @@ io.on('connection', (socket: any) => {
         socket.on(key, (message: string) => {
             events[key](message);
             console.log({ Received: key, Message: message});
-            // console.log({session: events.session})
         });
     });
 });

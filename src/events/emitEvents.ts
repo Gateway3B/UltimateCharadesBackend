@@ -17,6 +17,7 @@ export enum emitEvents {
     userClaimed = 'userClaimed',
     timerUpdate = 'timerUpdate',
     timerStart = 'timerStart',
-    timerStop = 'timerStop'
+    timerStop = 'timerStop',
+    results = 'results'
 }
 
