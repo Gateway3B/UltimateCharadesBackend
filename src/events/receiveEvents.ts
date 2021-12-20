@@ -7,7 +7,22 @@ import { word } from '../objects/word';
 
 const crypto = require('crypto');
 
-export class receiveEvents {
+export interface IReceiveEvents {
+    createSession: (message: string) => void,
+    joinSession: (message: string) => void,
+    setUsername: (message: string) => void,
+    changeTeam: (message: string) => void,
+    startGame: (message: string) => void,
+    addWord: (message: string) => void,
+    deleteWord: (message: string) => void,
+    usToggle: (message: string) => void,
+    claimUser: (message: string) => void,
+    startTimer: (message: string) => void,
+    stopTimer: (message: string) => void,
+    nextRound: (message: string) => void
+}
+
+export class receiveEvents implements IReceiveEvents {
     socket: any;
     sessions: Map<string, session>;
     session: session;
@@ -112,7 +127,7 @@ export class receiveEvents {
             const teamOne: user[] = this.session!.teamUsers(team.one);
             const teamTwo: user[] = this.session!.teamUsers(team.two);
 
-            if(true || teamOne.length >= 2 && 
+            if(teamOne.length >= 2 && 
                 teamTwo.length >= 2 &&
                 this.socket.id === this.session?.ownerId
             ) {
@@ -209,7 +224,7 @@ export class receiveEvents {
         {
             if(this.session.state === state.teamOnePlay) {
                 this.session.currentPlayer = this.session.teamUsers(team.one).reduce((previousUser: user, currentUser: user) => {
-                    if(previousUser.roundCount > currentUser.roundCount)
+                    if(previousUser.roundCount < currentUser.roundCount)
                         return previousUser;
                     return currentUser;
                 });
@@ -221,7 +236,7 @@ export class receiveEvents {
                 });
             } else {
                 this.session.currentPlayer = this.session.teamUsers(team.two).reduce((previousUser: user, currentUser: user) => {
-                    if(previousUser.roundCount > currentUser.roundCount)
+                    if(previousUser.roundCount < currentUser.roundCount)
                         return previousUser;
                     return currentUser;
                 });

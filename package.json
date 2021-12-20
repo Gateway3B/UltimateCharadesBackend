@@ -6,13 +6,15 @@
   "scripts": {
     "start": "node ./dist/out-tsc/server.js",
     "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts"
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts",
+    "heroku-postbuild": "tsc"
   },
   "author": "Gateway3B",
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
     "express": "^4.17.1",
+    "process": "^0.11.10",
     "socket.io": "^4.4.0"
   },
   "devDependencies": {
