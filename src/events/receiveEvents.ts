@@ -4,6 +4,7 @@ import { emitEvents } from '../events/emitEvents';
 import { team } from '../objects/team';
 import { state } from '../objects/state';
 import { word } from '../objects/word';
+import { Socket } from 'socket.io';
 
 const crypto = require('crypto');
 
@@ -45,7 +46,8 @@ export class receiveEvents implements IReceiveEvents {
         claimUser: this.claimUser,
         startTimer: this.startTimer,
         stopTimer: this.stopTimer,
-        nextRound: this.nextRound
+        nextRound: this.nextRound,
+        results: this.results
     }
 
     createSession(message: String) {
@@ -259,18 +261,25 @@ export class receiveEvents implements IReceiveEvents {
                     currentState: this.session.state,
                 }
         
-                console.log(this.socket.server.sockets.sockets);
-                this.socket.server.sockets.sockets.get(this.session.currentPlayer.userId).emit(emitEvents.charadesWord, this.session.currentWord.word);
+                const tempSocket: Socket | undefined = this.socket.server.sockets.sockets.get(this.session.currentPlayer.userId);
+                if(tempSocket !== undefined)
+                    tempSocket.emit(emitEvents.charadesWord, this.session.currentWord.word);
                 
                 this.socket.emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
                 this.socket.in(this.session.sessionId).emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
             } else {
                 this.session.state = state.results;
-                const words = {teamOneWords: Array.from(this.session.teamOneWords.values()), teamTwoWords: Array.from(this.session.teamTwoWords.values())};
-                this.socket.emit(emitEvents.results, JSON.stringify(words));
-                this.socket.in(this.session.sessionId).emit(emitEvents.results, JSON.stringify(words));
+                this.results();
             }
     
+        }
+    }
+
+    results() {
+        if(this.session.state = state.results) {
+            const words = {teamOneWords: Array.from(this.session.teamOneWords.values()), teamTwoWords: Array.from(this.session.teamTwoWords.values())};
+            this.socket.emit(emitEvents.results, JSON.stringify(words));
+            this.socket.in(this.session.sessionId).emit(emitEvents.results, JSON.stringify(words));
         }
     }
 
@@ -332,6 +341,8 @@ export class receiveEvents implements IReceiveEvents {
                 };
         
                 this.socket.emit(emitEvents.userClaimed, JSON.stringify(session));
+
+                this.socket.in(this.session.sessionId).emit(emitEvents.userAdded, JSON.stringify(user));
             }
         }
     }
