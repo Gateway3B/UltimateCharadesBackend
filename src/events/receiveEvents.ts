@@ -71,6 +71,7 @@ export class receiveEvents implements IReceiveEvents {
     }
 
     joinSession(sessionId: string) {
+        sessionId = sessionId.toUpperCase();
         if(this.sessions.has(sessionId) && this.sessions.get(sessionId)!.state === state.teamSelection) {
             this.session = this.sessions.get(sessionId)!;
 
@@ -229,7 +230,7 @@ export class receiveEvents implements IReceiveEvents {
                     return currentUser;
                 });
     
-                this.session.currentWord = Array.from(this.session.teamOneWords.values()).reduce((previousWord: word, currentWord: word) => {
+                this.session.currentWord = Array.from(this.session.teamTwoWords.values()).reduce((previousWord: word, currentWord: word) => {
                     if(previousWord.time === null)
                         return previousWord;
                     return currentWord;
@@ -241,7 +242,7 @@ export class receiveEvents implements IReceiveEvents {
                     return currentUser;
                 });
     
-                this.session.currentWord = Array.from(this.session.teamTwoWords.values()).reduce((previousWord: word, currentWord: word) => {
+                this.session.currentWord = Array.from(this.session.teamOneWords.values()).reduce((previousWord: word, currentWord: word) => {
                     if(previousWord.time === null)
                         return previousWord;
                     return currentWord;
@@ -258,6 +259,7 @@ export class receiveEvents implements IReceiveEvents {
                     currentState: this.session.state,
                 }
         
+                console.log(this.socket.server.sockets.sockets);
                 this.socket.server.sockets.sockets.get(this.session.currentPlayer.userId).emit(emitEvents.charadesWord, this.session.currentWord.word);
                 
                 this.socket.emit(emitEvents.nextRound, JSON.stringify(nextRoundData));
