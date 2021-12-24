@@ -25,14 +25,12 @@ io.on('connection', (socket: any) => {
     const events = new receiveEvents(socket, sessions);
     console.log(`A user has connected: ${socket.id}`);
 
-    Object.keys(events.events).forEach(key => {
-        type k = keyof receiveEvents;
-        const sKey: k = key as k;
-        socket.on(key, (message: string) => {
-            events[sKey](message);
-            console.log({ Received: key, Message: message});
+    Object.getOwnPropertyNames(receiveEvents.prototype).filter(method => method !== 'constructor').forEach(event => {
+        socket.on(event, (message: string) => {
+            events[event as keyof receiveEvents](message);
+            console.log({ Received: event, Message: message});
         });
-    });
+      });
 });
 
 http.listen(process.env.PORT || 80, () => console.log(`listening on port ${process.env.PORT || 80}`));

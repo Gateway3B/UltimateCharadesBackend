@@ -34,22 +34,6 @@ export class receiveEvents implements IReceiveEvents {
         this.session = new session();
     }
 
-    events = {
-        createSession: this.createSession,
-        joinSession: this.joinSession,
-        setUsername: this.setUsername,
-        changeTeam: this.changeTeam,
-        startGame: this.startGame,
-        addWord: this.addWord,
-        deleteWord: this.deleteWord,
-        usToggle: this.usToggle,
-        claimUser: this.claimUser,
-        startTimer: this.startTimer,
-        stopTimer: this.stopTimer,
-        nextRound: this.nextRound,
-        results: this.results
-    }
-
     createSession(message: String) {
 
         let sessionId = '';
@@ -61,7 +45,6 @@ export class receiveEvents implements IReceiveEvents {
         this.session = new session();
         this.session.sessionId = sessionId;
         this.session.ownerId = this.socket.id;
-        // this.session = new session(sessionId, this.socket.id);        
 
         this.session.users.set(this.socket.id, new user(this.socket.id));
 
