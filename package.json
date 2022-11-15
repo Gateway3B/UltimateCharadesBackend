@@ -6,12 +6,15 @@
   "scripts": {
     "start": "node ./dist/out-tsc/server.js",
     "tsc": "tsc",
-    "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts"
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts",
+    "build:docker": "docker build -t ultimatecharadesbackend .",
+    "deploy": ".\\deploy\\deploy.bat"
   },
   "author": "Gateway3B",
   "license": "ISC",
   "dependencies": {
     "crypto": "^1.0.1",
+    "dotenv": "^16.0.3",
     "express": "^4.17.1",
     "socket.io": "^4.4.0"
   },

@@ -87,7 +87,7 @@ export class receiveEvents {
                 this.socket.in(this.session.sessionId).emit(emitEvents.userAdded, JSON.stringify(user));
     
                 // Emit username accepted to user.
-                this.socket.emit(emitEvents.usernameAccepted, username);
+                this.socket.emit(emitEvents.usernameAccepted, user.userId);
             } else {
                 this.socket.emit(emitEvents.usernameTaken, null);
             }
