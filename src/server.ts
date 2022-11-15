@@ -22,15 +22,12 @@ io.on('connection', (socket: any) => {
     const events = new receiveEvents(socket, sessions);
     console.log(`A user has connected: ${socket.id}`);
 
-    Object.entries(events.events).forEach((array) => {
-        const key = array[0];
-        const method = array[1];
-        socket.on(key, (message: string) => {
-            events[key as keyof receiveEvents](message);
-            console.log({ Received: key, Message: message});
-            // console.log({session: events.session})
+    Object.getOwnPropertyNames(receiveEvents.prototype).filter(method => method !== 'constructor').forEach(event => {
+        socket.on(event, (message: string) => {
+            events[event as keyof receiveEvents](message);
+            console.log({ Received: event, Message: message});
         });
-    });
+      });
 });
 
-http.listen(8080, () => console.log('listening on http://localhost:8080'));
+http.listen(process.env.PORT || 80, () => console.log(`listening on port ${process.env.PORT || 80}`));
