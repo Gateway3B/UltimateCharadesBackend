@@ -1,12 +1,13 @@
-set ip=192.168.87.37
+set ip=192.168.1.90
 
 docker save ultimatecharadesfrontend:latest > ./ultimatecharadesfrontend.tar
-@REM docker save ultimatecharadesbackend:latest > ./ultimatecharadesbackend.tar
+docker save ultimatecharadesbackend:latest > ./ultimatecharadesbackend.tar
 
-scp ultimatecharadesfrontend.tar g3tech@%ip%:\Users\g3tech\Server\UltimateCharades
-@REM scp ultimatecharadesbackend.tar g3tech@%ip%:\Users\g3tech\Server\UltimateCharades
+scp ultimatecharadesfrontend.tar matthewweisfeld@%ip%:~/Documents/G3Tech/Server/UltimateCharades
+scp ultimatecharadesbackend.tar matthewweisfeld@%ip%:~/Documents/G3Tech/Server/UltimateCharades
 
-scp docker-compose.yml g3tech@%ip%:\Users\g3tech\Server\UltimateCharades
-scp deploy/remoteDeploy.bat g3tech@%ip%:\Users\g3tech\Server\UltimateCharades
+scp docker-compose.yml matthewweisfeld@%ip%:~/Documents/G3Tech/Server/UltimateCharades
+scp deploy/remoteDeploy.sh matthewweisfeld@%ip%:~/Documents/G3Tech/Server/UltimateCharades
 
-ssh g3tech@%ip% \Users\g3tech\Server\UltimateCharades\remoteDeploy.bat
+ssh matthewweisfeld@%ip% chmod +x /home/matthewweisfeld/Documents/G3Tech/Server/UltimateCharades/remoteDeploy.sh
+ssh matthewweisfeld@%ip% /home/matthewweisfeld/Documents/G3Tech/Server/UltimateCharades/remoteDeploy.sh

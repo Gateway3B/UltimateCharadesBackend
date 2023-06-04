@@ -2,27 +2,15 @@ version: '3'
 
 services:
     web:
-        image: 'ultimatecharadesfrontend'
-        networks:
-            - g3tech
-        expose:
-            - 80:80
-        environment:
-            - VIRTUAL_HOST=ultimatecharades.g3tech.net
-            - VIRTUAL_PORT=80
-            - LETSENCRYPT_HOST=ultimatecharades.g3tech.net
+        image: ultimatecharadesfrontend
+        container_name: ultimatecharadesfrontend
+        ports:
+            - 192.168.1.90:1001:80
     server:
-        image: 'ultimatecharadesbackend'
-        networks:
-            - g3tech
-        expose:
-            - 8080:8080
+        image: ultimatecharadesbackend
+        container_name: ultimatecharadesbackend
+        ports:
+            - 192.168.1.90:1002:8080
         environment:
             - CORS_ORIGIN=https://ultimatecharades.g3tech.net
-            - VIRTUAL_HOST=ultimatecharadesbackend.g3tech.net
-            - VIRTUAL_PORT=8080
-            - LETSENCRYPT_HOST=ultimatecharadesbackend.g3tech.net
 
-networks:
-    g3tech:
-        name: g3tech
