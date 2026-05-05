@@ -259,7 +259,7 @@ export class receiveEvents implements IReceiveEvents {
     }
 
     results() {
-        if(this.session.state = state.results) {
+        if(this.session.state === state.results) {
             const words = {teamOneWords: Array.from(this.session.teamOneWords.values()), teamTwoWords: Array.from(this.session.teamTwoWords.values())};
             this.socket.emit(emitEvents.results, JSON.stringify(words));
             this.socket.in(this.session.sessionId).emit(emitEvents.results, JSON.stringify(words));

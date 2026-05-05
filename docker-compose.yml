@@ -2,15 +2,15 @@ version: '3'
 
 services:
     web:
-        image: ultimatecharadesfrontend
-        container_name: ultimatecharadesfrontend
+        image: hl-docker-registry.g3tech.net/ultimate-charades-frontend:latest
+        container_name: ultimate-charades-frontend
         ports:
-            - 192.168.1.90:1001:80
+            - 1001:80
     server:
-        image: ultimatecharadesbackend
-        container_name: ultimatecharadesbackend
+        image: hl-docker-registry.g3tech.net/ultimate-charades-backend:latest
+        container_name: ultimate-charades-backend
         ports:
-            - 192.168.1.90:1002:8080
+            - 1002:8080
         environment:
             - CORS_ORIGIN=https://ultimatecharades.g3tech.net
 

@@ -13,7 +13,7 @@ export class session {
     currentWord: word;
     ready: boolean[]
     state: state;
-    timer: NodeJS.Timer | undefined;
+    timer: NodeJS.Timeout | undefined;
 
     constructor() {
         this.sessionId = '';
