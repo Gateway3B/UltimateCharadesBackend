@@ -12,5 +12,6 @@ services:
         ports:
             - 1002:8080
         environment:
+            - PORT=8080
             - CORS_ORIGIN=https://ultimatecharades.g3tech.net
 
