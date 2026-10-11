@@ -7,8 +7,8 @@
     "start": "node ./dist/out-tsc/server.js",
     "tsc": "tsc",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/server.ts",
-    "docker:build": "docker build -t hl-docker-registry.g3tech.net/ultimate-charades-backend:latest .",
-    "docker:push": "docker push hl-docker-registry.g3tech.net/ultimate-charades-backend:latest",
+    "docker:build": "docker build -f dockerfile -t ghcr.io/gateway3b/ultimate-charades-backend:latest .",
+    "docker:push": "docker push ghcr.io/gateway3b/ultimate-charades-backend:latest",
     "deploy": ".\\deploy\\deploy.bat"
   },
   "author": "Gateway3B",
