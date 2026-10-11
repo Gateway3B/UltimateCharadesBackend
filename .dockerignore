@@ -1,2 +1,7 @@
 .env
 .tar
+.git
+.github
+node_modules
+dist
+.env.*
